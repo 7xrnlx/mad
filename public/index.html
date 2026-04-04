@@ -54,51 +54,73 @@
             position: relative;
         }
 
-        /* Navigation & Buttons */
+        /* Nav & Theme */
         .nav-links { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
-        .links-group { display: flex; gap: 20px; } 
-        .links-group a { text-decoration: none; color: var(--text); font-weight: 700; opacity: 0.7; font-size: 1.3rem; }
+        .links-group { display: flex; gap: 20px; flex-wrap: wrap; } 
+        .links-group a { text-decoration: none; color: var(--text); font-weight: 700; opacity: 0.7; font-size: 1.1rem; }
         .links-group a:hover { opacity: 1; color: var(--accent); }
 
+        .theme-pill-box { display: flex; position: relative; background: var(--nav-bg); padding: 4px; border-radius: 50px; border: 1px solid var(--border); }
+        .theme-pill-box button { width: 40px; height: 36px; border: none; background: transparent; cursor: pointer; z-index: 2; font-size: 1.05rem; }
+        .theme-indicator { position: absolute; height: 36px; width: 40px; background: var(--accent); border-radius: 50px; top: 4px; left: 4px; transition: transform 0.4s var(--ease); z-index: 1; }
+
+        /* Browser Box */
         .browser-box { display: flex; background: var(--nav-bg); border-radius: 18px; padding: 6px; border: 2px solid transparent; margin-top: 35px; }
         .browser-box:focus-within { border-color: var(--accent); background: var(--container); }
         .browser-box input { flex: 1; padding: 10px 16px; border: none; background: transparent; color: var(--text); font-size: 1.05rem; outline: none; }
         .browser-btn { background: var(--accent); color: white; border: none; border-radius: 14px; padding: 0 22px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
 
         /* Proxy Overlay */
-        #proxy-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 9999; display: none; flex-direction: column;
-        }
-        .proxy-nav {
-            height: 60px; background: var(--container); border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; padding: 0 20px; gap: 15px;
-        }
+        #proxy-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: none; flex-direction: column; }
+        .proxy-nav { height: 60px; background: var(--container); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 15px; }
         .proxy-nav input { flex: 1; padding: 8px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--nav-bg); color: var(--text); }
         .exit-btn { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         #sj-frame { border: none; width: 100%; height: calc(100% - 60px); background: white; }
 
-        /* Rest of UI Styles */
-        .theme-pill-box { display: flex; position: relative; background: var(--nav-bg); padding: 4px; border-radius: 50px; border: 1px solid var(--border); }
-        .theme-pill-box button { width: 40px; height: 36px; border: none; background: transparent; cursor: pointer; z-index: 2; font-size: 1.05rem; }
-        .theme-indicator { position: absolute; height: 36px; width: 40px; background: var(--accent); border-radius: 50px; top: 4px; left: 4px; transition: transform 0.4s var(--ease); z-index: 1; }
+        /* Modals */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(15px); }
+        .modal-box { background: var(--container); width: 90%; max-width: 480px; padding: 35px; border-radius: 24px; position: relative; border: 1px solid var(--border); }
+        .close-btn { position: absolute; top: 18px; right: 18px; border: none; background: var(--nav-bg); border-radius: 50%; width: 30px; height: 30px; cursor: pointer; color: var(--text); }
+
+        /* Sports Elements */
         .main-tab-bar { display: flex; gap: 18px; margin-bottom: 22px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
         .main-tab-btn { background: transparent; border: none; color: var(--text); font-size: 1.15rem; font-weight: 800; opacity: 0.4; cursor: pointer; }
         .main-tab-btn.active { opacity: 1; color: var(--accent); border-bottom: 3px solid var(--accent); }
         .sub-tab-bar { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
         .sport-btn { padding: 9px 16px; border: none; background: var(--nav-bg); color: var(--text); border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
         .sport-btn.active { background: var(--accent); color: white; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 22px; border: 1px solid var(--border); text-decoration: none; color: var(--text); display: flex; flex-direction: column; justify-content: space-between; min-height: 170px; }
+        
+        .card { background: var(--card-bg); padding: 20px; border-radius: 22px; border: 1px solid var(--border); text-decoration: none; color: var(--text); display: flex; flex-direction: column; justify-content: space-between; min-height: 185px; }
         .score-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1.2rem; margin: 5px 0; }
         .win-text { color: var(--win) !important; font-weight: 900; }
         .loss-text { color: var(--loss) !important; opacity: 0.7; }
-        footer { text-align: center; padding: 35px 0; opacity: 0.5; font-size: 0.8rem; font-weight: 600; }
         
+        .refresh-tag { position: absolute; top: 35px; right: 35px; font-size: 0.7rem; font-weight: 800; color: var(--accent); background: var(--nav-bg); padding: 5px 10px; border-radius: 20px; }
+
         @keyframes reveal { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
         .animate-reveal { animation: reveal 0.8s var(--ease) forwards; opacity: 0; }
+        footer { text-align: center; padding: 35px 0; opacity: 0.5; font-size: 0.8rem; font-weight: 600; }
     </style>
 </head>
 <body data-theme="default">
+
+    <div id="info-overlay" class="overlay" onclick="toggleModal('info-overlay', false)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="toggleModal('info-overlay', false)">&times;</button>
+            <div style="font-size: 0.65rem; font-weight: 900; color: var(--accent); text-transform: uppercase; margin-bottom: 5px;">Information</div>
+            <h2 style="margin: 0 0 12px 0; font-size: 1.35rem;">About madb</h2>
+            <p style="line-height: 1.5; opacity: 0.8; font-size: 0.9rem;">Unrestricted hub for sports synchronization and secure web exploration. Optimized for speed and privacy.</p>
+        </div>
+    </div>
+
+    <div id="settings-overlay" class="overlay" onclick="toggleModal('settings-overlay', false)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="toggleModal('settings-overlay', false)">&times;</button>
+            <div style="font-size: 0.65rem; font-weight: 900; color: var(--accent); text-transform: uppercase; margin-bottom: 5px;">Settings</div>
+            <h2 style="margin: 0 0 12px 0; font-size: 1.35rem;">Preferences</h2>
+            <p style="opacity: 0.7; font-size: 0.85rem;">UI Version: 4.0 Ultra<br>Data: ESPN-Sync Enabled</p>
+        </div>
+    </div>
 
     <div id="proxy-overlay">
         <div class="proxy-nav">
@@ -107,12 +129,17 @@
                 <input id="proxy-nav-input" type="text" placeholder="Enter URL or search...">
             </form>
         </div>
-        </div>
+    </div>
 
     <div class="main-ui-container">
         <div class="nav-links">
             <div class="links-group">
-                <a href="/">Home</a><a href="/games">Games</a><a href="/proxies">Proxies</a>
+                <a href="/">Home</a>
+                <a href="/games">Games</a>
+                <a href="/proxies">Proxies</a>
+                <a href="/chat">Live Chat</a>
+                <a href="#" onclick="toggleModal('settings-overlay', true)">Settings</a>
+                <a href="#" onclick="toggleModal('info-overlay', true)">Information</a>
             </div>
             <div class="theme-pill-box">
                 <div class="theme-indicator" id="indicator"></div>
@@ -130,13 +157,16 @@
         <form class="browser-box" id="sj-form">
             <input type="hidden" id="sj-search-engine" value="https://www.google.com/search?q=%s">
             <input type="text" id="sj-address" placeholder="Search Google or type URL..." autocomplete="off">
-            <button type="submit" class="browser-btn" id="sj-btn">GO</button>
+            <button type="submit" class="browser-btn">GO</button>
         </form>
     </div>
 
     <div class="main-ui-container">
+        <div class="refresh-tag" id="refresh-timer">Refreshing in 60s</div>
+        
         <div style="margin-bottom:18px;">
             <h2 style="margin:0; font-weight:900; font-size: 2rem;">Sports Hub</h2>
+            <p style="margin:0; opacity:0.6; font-size: 0.85rem; font-weight: 700;">(latest news & scores)</p>
         </div>
 
         <div class="main-tab-bar">
@@ -153,7 +183,7 @@
     <script>
         "use strict";
 
-        // --- BROWSER / PROXY LOGIC ---
+        // --- BROWSER ENGINE ---
         function search(input, template) {
             try { return new URL(input).toString(); } catch (err) { }
             try {
@@ -173,74 +203,51 @@
         window.addEventListener('load', async () => {
             const form = document.getElementById("sj-form");
             const address = document.getElementById("sj-address");
-            const searchEngine = document.getElementById("sj-search-engine");
             const proxyOverlay = document.getElementById("proxy-overlay");
             const proxyInput = document.getElementById("proxy-nav-input");
-            const proxyNavForm = document.getElementById("proxy-nav-form");
 
-            if (typeof BareMux === 'undefined' || typeof $scramjetLoadController === 'undefined') {
-                console.error("Proxy libraries failed to load.");
-                return;
-            }
+            if (typeof BareMux !== 'undefined' && typeof $scramjetLoadController !== 'undefined') {
+                const { ScramjetController } = $scramjetLoadController();
+                const scramjet = new ScramjetController({
+                    files: { wasm: '/scram/scramjet.wasm.wasm', all: '/scram/scramjet.all.js', sync: '/scram/scramjet.sync.js' },
+                });
+                scramjet.init();
+                const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
 
-            const { ScramjetController } = $scramjetLoadController();
-            const scramjet = new ScramjetController({
-                files: { wasm: '/scram/scramjet.wasm.wasm', all: '/scram/scramjet.all.js', sync: '/scram/scramjet.sync.js' },
-            });
-            scramjet.init();
-
-            const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-
-            form.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const val = address.value.trim();
-                if (!val) return;
-
-                try {
-                    if (typeof registerSW === 'function') await registerSW();
-                    else await manualRegisterSW();
-
-                    const url = search(val, searchEngine.value);
-                    const wispUrl = (location.protocol === "https:" ? "wss" : "ws") + "://" + location.host + "/wisp/";
-                    
-                    if ((await connection.getTransport()) !== "/epoxy/index.mjs") {
-                        await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
-                    }
-
-                    document.body.style.overflow = "hidden";
-                    proxyOverlay.style.display = "flex";
-                    proxyInput.value = url;
-
-                    const existingFrame = document.getElementById("sj-frame");
-                    if (existingFrame) existingFrame.remove();
-
-                    const frame = scramjet.createFrame();
-                    frame.frame.id = "sj-frame";
-                    proxyOverlay.appendChild(frame.frame);
-                    frame.go(url);
-                } catch (err) {
-                    alert("Proxy Error: " + err.message);
-                }
-            });
-
-            proxyNavForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                address.value = proxyInput.value;
-                form.dispatchEvent(new Event('submit'));
-            });
-
-            window.exitProxy = function() {
-                document.body.style.overflow = "auto";
-                proxyOverlay.style.display = "none";
-                const f = document.getElementById("sj-frame");
-                if (f) f.remove();
-                address.value = "";
+                form.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    const val = address.value.trim();
+                    if (!val) return;
+                    try {
+                        await manualRegisterSW();
+                        const url = search(val, document.getElementById("sj-search-engine").value);
+                        const wispUrl = (location.protocol === "https:" ? "wss" : "ws") + "://" + location.host + "/wisp/";
+                        if ((await connection.getTransport()) !== "/epoxy/index.mjs") {
+                            await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
+                        }
+                        document.body.style.overflow = "hidden";
+                        proxyOverlay.style.display = "flex";
+                        proxyInput.value = url;
+                        const frame = scramjet.createFrame();
+                        frame.frame.id = "sj-frame";
+                        proxyOverlay.appendChild(frame.frame);
+                        frame.go(url);
+                    } catch (err) { console.error(err); }
+                });
             }
         });
 
-        // --- UI & SPORTS HUB LOGIC ---
-        let currentMode = 'NEWS';
-        let currentLeague = 'MLB';
+        window.exitProxy = function() {
+            document.body.style.overflow = "auto";
+            document.getElementById("proxy-overlay").style.display = "none";
+            const f = document.getElementById("sj-frame");
+            if (f) f.remove();
+        }
+
+        function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
+
+        // --- THEME & SPORTS ---
+        let currentMode = 'NEWS', currentLeague = 'MLB', timeLeft = 60;
         const leagues = ['MLB', 'NFL', 'NHL', 'NBA', 'FC'];
 
         function setTheme(theme, index) {
@@ -301,10 +308,9 @@
                 const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportMap[league]}/scoreboard`);
                 const data = await res.json();
                 data.events.forEach((game, i) => {
-                    const comp = game.competitions[0];
-                    const home = comp.competitors[0];
-                    const away = comp.competitors[1];
+                    const comp = game.competitions[0], home = comp.competitors[0], away = comp.competitors[1];
                     const isFinal = game.status.type.state === 'post';
+                    const gameDate = new Date(game.date);
                     
                     let hStyle = "", aStyle = "";
                     if (isFinal) {
@@ -316,16 +322,27 @@
                     card.className = "card animate-reveal";
                     card.style.animationDelay = `${i * 0.05}s`;
                     card.innerHTML = `
-                        <div style="font-size:0.65rem; font-weight:900; color:var(--accent); margin-bottom:12px;">
-                            <span style="background:var(--nav-bg); padding:4px 8px; border-radius:6px;">${game.status.type.shortDetail}</span>
+                        <div style="font-size:0.65rem; font-weight:900; color:var(--accent); margin-bottom:12px; display:flex; justify-content:space-between;">
+                            <span style="background:var(--nav-bg); padding:4px 8px; border-radius:6px;">${isFinal ? 'FINAL' : 'SCHEDULE'}</span>
+                            <span style="opacity:0.6;">${gameDate.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})} PT</span>
                         </div>
                         <div class="score-row"><span class="${aStyle}">${away.team.abbreviation}</span><span>${away.score}</span></div>
                         <div class="score-row"><span class="${hStyle}">${home.team.abbreviation}</span><span>${home.score}</span></div>
+                        <div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
+                            <div style="font-size:0.75rem; font-weight:800; opacity:0.8;">${gameDate.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'})}</div>
+                            <div style="font-size:0.7rem; opacity:0.5; font-weight:600;">${game.status.type.shortDetail}</div>
+                        </div>
                     `;
                     grid.appendChild(card);
                 });
             } catch(e) { grid.innerHTML = "No games found."; }
         }
+
+        setInterval(() => {
+            timeLeft--;
+            document.getElementById('refresh-timer').innerText = `Refreshing in ${timeLeft}s`;
+            if(timeLeft <= 0) { timeLeft = 60; renderSubTabs(); }
+        }, 1000);
 
         window.onload = () => {
             const saved = JSON.parse(localStorage.getItem('madb-theme'));
