@@ -1,685 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-
-    <script src="/scram/scramjet.all.js"></script>
-    <script src="/baremux/index.js"></script>
-    <script src="/epoxy/index.js"></script>
-    <script src="/register-sw.js"></script>
-    <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const style = document.createElement("style");
-      style.textContent = `* { cursor: none !important; }`;
-      document.head.appendChild(style);
-    
-      const cursor = document.createElement("img");
-      cursor.src = "/cursor.gif";
-      cursor.style.position = "fixed";
-      cursor.style.width = "17px";
-      cursor.style.height = "21px";
-      cursor.style.imageRendering = "auto";
-      cursor.style.pointerEvents = "none";
-      cursor.style.zIndex = "9999999";
-      cursor.style.transform = "translate(0, 0)";
-    
-      document.body.appendChild(cursor);
-    
-      document.addEventListener("mousemove", e => {
-        cursor.style.left = e.clientX + "px";
-        cursor.style.top = e.clientY + "px";
-      });
-    });
-    </script>
+    <title>madb | Ultra Hub</title>
 
     <style>
-        /* ============================
-           DEFAULT THEME (Minimalist)
-           ============================ */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-            /* Allow scrolling */
-            overflow-y: auto;
-            min-height: 100vh;
-            transition: background 0.3s;
+        :root {
+            --bg: #f8fafc; --container: #ffffff; --text: #0f172a; --accent: #3b82f6;
+            --nav-bg: #f1f5f9; --border: #e2e8f0; --card-bg: #ffffff;
+            --win: #22c55e; --loss: #ef4444;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
+
+        [data-theme="dark"] {
+            --bg: #0f172a; --container: #1e293b; --text: #f8fafc; --accent: #3b82f6;
+            --nav-bg: #334155; --border: #475569; --card-bg: #1e293b;
+        }
+
+        [data-theme="cyberpunk"] {
+            --bg: #020617; --container: #0f172a; --text: #22d3ee; --accent: #f43f5e;
+            --nav-bg: #1e293b; --border: #f43f5e; --card-bg: #1e293b;
+        }
+
+        [data-theme="sakura"] {
+            --bg: #fff1f2; --container: #ffffff; --text: #9f1239; --accent: #fb7185;
+            --nav-bg: #ffe4e6; --border: #fda4af; --card-bg: #fffafb;
+        }
+
+        [data-theme="ocean"] {
+            --bg: #082f49; --container: #0c4a6e; --text: #e0f2fe; --accent: #0ea5e9;
+            --nav-bg: #075985; --border: #38bdf8; --card-bg: #0c4a6e;
+        }
+
+        * { 
+            transition: background 0.6s ease, color 0.6s ease, border 0.6s ease; 
+            box-sizing: border-box; 
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+        }
+
+        body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes reveal {
+            0% { opacity: 0; transform: translateY(15px); filter: blur(5px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        .animate-reveal { animation: reveal 0.8s var(--ease) forwards; opacity: 0; }
 
         .main-ui-container {
-            width: 80%;
-            max-width: 800px;
-            margin: 80px auto;
-            padding: 30px;
-            background: #fff;
-            border: 1px solid #ccc;
-            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
-            border-radius: 0;
-            text-align: center;
+            width: 95%; max-width: 1050px;
+            margin: 35px auto; padding: 35px;
+            background: var(--container); border-radius: 32px;
+            box-shadow: 0 20px 60px -15px rgba(0,0,0,0.1); border: 1px solid var(--border);
             position: relative;
-            z-index: 1;
-            transition: all 0.3s;
         }
 
-        .logo-img {
-            max-width: 200px;
-            height: auto;
-            margin-bottom: 20px;
-            display: block;
-            margin: 0 auto 20px auto;
+        .nav-links { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
+        .links-group { display: flex; gap: 20px; } 
+        .links-group a { 
+            text-decoration: none; color: var(--text); font-weight: 700; 
+            opacity: 0.7; font-size: 1.3rem;
+        }
+        .links-group a:hover { opacity: 1; color: var(--accent); }
+
+        .theme-pill-box { display: flex; position: relative; background: var(--nav-bg); padding: 4px; border-radius: 50px; border: 1px solid var(--border); }
+        .theme-pill-box button { width: 40px; height: 36px; border: none; background: transparent; cursor: pointer; z-index: 2; font-size: 1.05rem; }
+        .theme-indicator { position: absolute; height: 36px; width: 40px; background: var(--accent); border-radius: 50px; top: 4px; left: 4px; transition: transform 0.4s var(--ease); z-index: 1; }
+
+        .browser-box { display: flex; background: var(--nav-bg); border-radius: 18px; padding: 6px; border: 2px solid transparent; margin-top: 35px; }
+        .browser-box:focus-within { border-color: var(--accent); background: var(--container); }
+        .browser-box input { flex: 1; padding: 10px 16px; border: none; background: transparent; color: var(--text); font-size: 1.05rem; outline: none; }
+        .browser-btn { background: var(--accent); color: white; border: none; border-radius: 14px; padding: 0 22px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; justify-content: center;
+            align-items: center; z-index: 1000; backdrop-filter: blur(15px);
         }
 
-        h1 {
-            color: #4a90e2;
-            text-align: center;
-            margin-top: 0;
+        .modal-box {
+            background: var(--container); width: 90%; max-width: 480px; padding: 35px; border-radius: 24px; position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3); border: 1px solid var(--border); animation: modalIn 0.5s var(--ease);
         }
 
-        p {
-            color: #7b7b7b;
-            line-height: 1.5em;
-            margin-bottom: 20px;
-        }
+        .close-btn { position: absolute; top: 18px; right: 18px; border: none; background: var(--nav-bg); border-radius: 50%; width: 30px; height: 30px; cursor: pointer; color: var(--text); font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
 
-        .nav-links {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-        }
+        .main-tab-bar { display: flex; gap: 18px; margin-bottom: 22px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
+        .main-tab-btn { background: transparent; border: none; color: var(--text); font-size: 1.15rem; font-weight: 800; opacity: 0.4; cursor: pointer; }
+        .main-tab-btn.active { opacity: 1; color: var(--accent); border-bottom: 3px solid var(--accent); }
 
-        .nav-links a {
-            color: #4a90e2;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        #style-select {
-            padding: 5px;
-            border: 1px solid #ccc;
-            background: #f9f9f9;
-            color: #333;
-            font-size: 14px;
-        }
-
-        #sj-form {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        #sj-address {
-            width: 70%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 0;
-            font-size: 16px;
-            outline: none;
-        }
-
-        #sj-address:focus {
-            border-color: #4a90e2;
-        }
-
-        button.primary-btn {
-            display: block;
-            padding: 10px 20px;
-            background-color: #4a90e2;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            border: none;
-            border-radius: 0;
-        }
-
-        button.primary-btn:hover {
-            background-color: #357abd;
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* --- PROXY OVERLAY --- */
-        #proxy-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff;
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            overflow: hidden; /* Overlay doesn't scroll body */
-        }
-
-        .proxy-bar {
-            height: 50px;
-            background-color: #4a90e2;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            flex-shrink: 0;
-        }
-
-        .proxy-bar button {
-            background: #ff5f57;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 0;
-            font-weight: bold;
-            margin-right: 15px;
-            cursor: pointer;
-        }
-
-        #proxy-nav-form { flex-grow: 1; display: flex; }
-        #proxy-nav-input {
-            width: 100%; padding: 8px 12px; border: none; border-radius: 0; outline: none; font-family: monospace;
-        }
-        #sj-frame { border: none; width: 100%; height: calc(100% - 50px); background: white; display: block; }
+        .sub-tab-bar { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+        .sport-btn { padding: 9px 16px; border: none; background: var(--nav-bg); color: var(--text); border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+        .sport-btn.active { background: var(--accent); color: white; }
         
-        /* --- LOGS WINDOW --- */
-        #logs-window {
-            position: fixed; bottom: 20px; right: 20px; width: 320px;
-            background: white; border: 1px solid #ccc;
-            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
-            border-radius: 0; overflow: hidden; z-index: 10000;
-            display: flex; flex-direction: column;
-        }
-        .logs-header {
-            background: #4a90e2; color: white; padding: 10px 15px;
-            font-weight: bold; cursor: move; display: flex;
-            justify-content: space-between; align-items: center; user-select: none;
-        }
-        .logs-controls button { background: transparent; border: none; color: white; cursor: pointer; margin-left: 5px; }
-        #update-logs-frame { width: 100%; height: 300px; border: none; background: #f9f9f9; transition: height 0.3s; }
-        #error-msg { color: red; margin-top: 10px; display: none; padding: 10px; background: #fff0f0; border: 1px solid red; }
+        .refresh-tag { position: absolute; top: 35px; right: 35px; font-size: 0.7rem; font-weight: 800; color: var(--accent); background: var(--nav-bg); padding: 5px 10px; border-radius: 20px; }
 
-        /* --- NEWS GRID --- */
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 15px;
-            text-align: left;
-            margin-top: 15px;
-        }
-        .news-card {
-            display: flex; flex-direction: column; border: 1px solid #eee; text-decoration: none;
-            background: #fff; transition: transform 0.2s, box-shadow 0.2s; height: 100%;
-        }
-        .news-card:hover {
-            transform: translateY(-2px); box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15); border-color: #4a90e2;
-        }
-        .news-thumb {
-            width: 100%; height: 120px; object-fit: cover; background-color: #f0f0f0; border-bottom: 1px solid #eee;
-        }
-        .news-content { padding: 10px; display: flex; flex-direction: column; flex-grow: 1; }
-        .news-title {
-            color: #4a90e2; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;
-            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        .news-date { font-size: 0.7rem; color: #999; margin-top: auto; }
-
-
-        /* ==================================================================
-           THEME: AUTHENTIC FRUTIGER AERO (2000s / Vista)
-           ================================================================== */
-        
-        body.theme-2007 {
-            /* Classic Vista "Aurora" Gradient */
-            background: radial-gradient(circle at top left, #306eff, transparent 40%),
-                        radial-gradient(circle at bottom right, #00cdac, transparent 40%),
-                        linear-gradient(135deg, #003366 0%, #005b96 100%);
-            background-attachment: fixed;
-            font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
-            color: #222;
-        }
-        body.theme-2007 .address{
-            background: #fff;
-            border: 1px solid #7a9bb0;
-            border-top-color: #555;
-            box-shadow: inset 0 2px 2px rgba(0,0,0,0.1);
-            border-radius: 2px;
-        }
-        /* Container: Window Effect */
-        body.theme-2007 .main-ui-container {
-            background: linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 100%);
-            /* The "Glass" Border */
-            border: 1px solid #707070;
-            border-radius: 8px;
-            /* Thick translucent cyan outline for "Aero Glass" edge */
-            box-shadow: 
-                0 0 0 5px rgba(100, 200, 255, 0.4), 
-                0 10px 30px rgba(0,0,0,0.5);
-            padding: 0; /* Reset padding for window layout */
-            overflow: hidden;
+        .card {
+            background: var(--card-bg); padding: 20px; border-radius: 22px; border: 1px solid var(--border);
+            text-decoration: none; color: var(--text); display: flex; flex-direction: column; justify-content: space-between; min-height: 170px;
         }
 
-        /* Fake "Window Controls" & Title Bar */
-        body.theme-2007 .main-ui-container::before {
-            content: "DoxyEdu Browser";
-            display: block;
-            height: 28px;
-            background: linear-gradient(to bottom, #dbebfc 0%, #bcd6f5 100%);
-            border-bottom: 1px solid #8ba0b9;
-            color: #444;
-            text-align: left;
-            padding-left: 10px;
-            line-height: 28px;
-            font-size: 12px;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.8);
-            border-radius: 7px 7px 0 0;
-        }
+        .score-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1.2rem; margin: 5px 0; }
+        .win-text { color: var(--win) !important; font-weight: 900; }
+        .loss-text { color: var(--loss) !important; opacity: 0.7; }
 
-        body.theme-2007 .main-ui-container::after {
-            content: " -  □  × ";
-            position: absolute;
-            top: 2px;
-            right: 8px;
-            font-family: monospace;
-            font-size: 14px;
-            color: #555;
-            letter-spacing: 5px;
-            cursor: pointer;
-        }
-
-        /* Toolbar Area (Moved Nav) */
-        body.theme-2007 .nav-links {
-            background: linear-gradient(to bottom, #f5f5f5 0%, #cfcfcf 100%);
-            border-bottom: 1px solid #aaa;
-            margin: 0;
-            padding: 8px;
-            justify-content: flex-start;
-            box-shadow: inset 0 1px 0 #fff;
-        }
-
-        body.theme-2007 .nav-links a {
-            color: #333;
-            font-size: 12px;
-            padding: 4px 10px;
-            border: 1px solid transparent;
-            border-radius: 3px;
-            text-shadow: 0 1px 0 #fff;
-        }
-
-        body.theme-2007 .nav-links a:hover {
-            background: linear-gradient(to bottom, #e8f5fc 0%, #cceeff 100%);
-            border: 1px solid #8ba0b9;
-            text-decoration: none;
-        }
-
-        /* Content Padding wrapper */
-        body.theme-2007 .main-ui-container > *:not(.nav-links) {
-            /* Apply padding to elements not in nav */
-            margin-left: 20px;
-            margin-right: 20px;
-        }
-
-        /* Logo Reflection */
-        body.theme-2007 .logo-img {
-            margin-top: 20px;
-            -webkit-box-reflect: below 0px linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.2));
-        }
-
-        body.theme-2007 h1 {
-            color: #003399;
-            font-weight: normal;
-            font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-            margin-bottom: 5px;
-        }
-        
-        body.theme-2007 p {
-            color: #444;
-            font-size: 14px;
-        }
-
-        body.theme-2007 #sj-address {
-            background: #fff;
-            border: 1px solid #7a9bb0;
-            border-top-color: #555;
-            box-shadow: inset 0 2px 2px rgba(0,0,0,0.1);
-            border-radius: 2px;
-            padding: 8px;
-            height: 20%;
-            font-family: "Segoe UI", sans-serif;
-        }
-
-        body.theme-2007 button.primary-btn {
-            background: linear-gradient(to bottom, #ccffcc 0%, #66cc66 50%, #339933 51%, #006600 100%);
-            border: 1px solid #225522;
-            border-radius: 4px;
-            color: white;
-            font-weight: bold;
-            text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 2px 3px rgba(0,0,0,0.2);
-            margin-bottom: 20px; /* Spacing at bottom */
-        }
-        
-        body.theme-2007 button.primary-btn:hover {
-            background: linear-gradient(to bottom, #ddffdd 0%, #88dd88 50%, #44aa44 51%, #007700 100%);
-            box-shadow: 0 0 10px rgba(100,255,100,0.6);
-        }
-
-        /* Dropdown Style */
-        body.theme-2007 #style-select {
-            border: 1px solid #888;
-            border-radius: 3px;
-            padding: 3px;
-            font-size: 11px;
-            background: linear-gradient(#fff, #eee);
-        }
-
-        body.theme-2007 .news-card {
-            border-radius: 6px;
-            border: 1px solid #888;
-            background: linear-gradient(to bottom, #fff 0%, #f4f4f4 100%);
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-        }
-        
-        body.theme-2007 .news-title {
-            color: #114477;
-            font-family: Tahoma, sans-serif;
-        }
-
-        body.theme-2007 .news-thumb {
-            border-radius: 5px 5px 0 0;
-            border-bottom: 1px solid #aaa;
-        }
-
-        /* Logs Window - XP/Vista Style */
-        body.theme-2007 #logs-window {
-            border: 2px solid #0055ea;
-            border-radius: 5px 5px 0 0;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
-        }
-        body.theme-2007 .logs-header {
-            background: linear-gradient(to bottom, #0058ee 0%, #0023a5 100%); /* XP Blue */
-            font-family: Tahoma;
-            text-shadow: 1px 1px 0 #000;
-        }
+        footer { text-align: center; padding: 35px 0; opacity: 0.5; font-size: 0.8rem; font-weight: 600; }
     </style>
 </head>
+<body data-theme="default">
 
-<body>
-
-    <div class="main-ui-container" id="main-menu">
-        <div class="nav-links">
-            <span style="margin-right: auto; font-size:12px; color:#555; padding-left:5px;" class="address">https://doxyedu.dpdns.org/ </span>
-            <a href="/">Home</a>
-            <a href="https://github.com/Arandomdude222/DoxyEdu-web-proxy" target="_blank">Github</a>
-            <a href="/credits.html">Credits</a>
-            <select id="style-select">
-                <option value="default">Default</option>
-                <option value="2007">Frutiger Aero</option>
-            </select>
-        </div>
-
-        <img src="logo.svg" alt="DoxyEdu" class="logo-img">
-        
-        <h1>Welcome to DoxyEdu</h1>
-        <p>Browse the w3b freely.</p>
-
-        <form id="sj-form">
-            <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
-            <input id="sj-address" type="text" placeholder="http://..." autocomplete="off" disabled />
-            <button type="submit" class="primary-btn" id="sj-btn" disabled>Go →</button>
-        </form>
-        <div id="error-msg"></div>
-    </div>
-
-    <!-- News Container -->
-    <div class="main-ui-container" style="margin-top: 20px;">
-        <h3 style="margin-top: 10px; color: #555; text-align: left; padding-left: 10px; border-bottom: 1px solid #ccc; padding-bottom:5px;">Latest Headlines</h3>
-        <div id="learning-news" class="news-grid">
-            <p style="width: 100%; text-align: center; color: #777;">Loading News Feed...</p>
-        </div>
-        <br>
-    </div>
-    
-
-    <div id="proxy-overlay">
-        <div class="proxy-bar">
-            <button onclick="exitProxy()">Exit</button>
-            <form id="proxy-nav-form">
-                <input id="proxy-nav-input" type="text" placeholder="Type URL here..." />
-            </form>
+    <div id="info-overlay" class="overlay" onclick="toggleModal('info-overlay', false)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="toggleModal('info-overlay', false)">&times;</button>
+            <div style="font-size: 0.65rem; font-weight: 900; color: var(--accent); text-transform: uppercase; margin-bottom: 5px;">Information</div>
+            <h2 style="margin: 0 0 12px 0; font-size: 1.35rem;">About madb</h2>
+            <p style="line-height: 1.5; opacity: 0.8; font-size: 0.9rem;">Unrestricted hub for sports synchronization, live score tracking, and secure web exploration. Optimized for speed and privacy.</p>
         </div>
     </div>
 
-    <div id="logs-window">
-        <div class="logs-header" id="logs-header">
-            <span>Update Logs</span>
-            <div class="logs-controls">
-                <button onclick="toggleLogs()">-</button>
-                <button onclick="closeLogs()">×</button>
+    <div id="settings-overlay" class="overlay" onclick="toggleModal('settings-overlay', false)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="toggleModal('settings-overlay', false)">&times;</button>
+            <div style="font-size: 0.65rem; font-weight: 900; color: var(--accent); text-transform: uppercase; margin-bottom: 5px;">Settings</div>
+            <h2 style="margin: 0 0 12px 0; font-size: 1.35rem;">Preferences</h2>
+            <div style="opacity: 0.7; line-height: 1.7; font-size: 0.85rem;">
+                <p>• Interface: <span style="color:var(--accent)">v4.0 Ultra</span></p>
+                <p>• Data Source: <span style="color:var(--accent)">ESPN-Sync</span></p>
+                <p>• Region: <span style="color:var(--accent)">San Diego (PT)</span></p>
+                <p>• Server Status: <span style="color:var(--accent)">Nominal</span></p>
+                <p style="margin-top:12px; font-style:italic;">User-specific configuration modules are currently being compiled. Check back for full control.</p>
             </div>
         </div>
-        <iframe id="update-logs-frame" src="/assets/2.html"></iframe>
     </div>
 
-    <script>
-        "use strict";
+    <div class="main-ui-container">
+        <div class="nav-links">
+            <div class="links-group">
+                <a href="/">Home</a><a href="/games">Games</a><a href="/proxies">Proxies</a>
+                <a href="/chat">Live Chat</a><a href="#" onclick="toggleModal('settings-overlay', true)">Settings</a>
+                <a href="#" onclick="toggleModal('info-overlay', true)">Information</a>
+            </div>
+            <div class="theme-pill-box">
+                <div class="theme-indicator" id="indicator"></div>
+                <button onclick="setTheme('default', 0)">☀</button>
+                <button onclick="setTheme('dark', 1)">🌙</button>
+                <button onclick="setTheme('cyberpunk', 2)">⚡</button>
+                <button onclick="setTheme('sakura', 3)">🌸</button>
+                <button onclick="setTheme('ocean', 4)">🌊</button>
+            </div>
+        </div>
 
-        // Theme Switcher Logic
-        const themeSelect = document.getElementById('style-select');
-        const savedTheme = localStorage.getItem('doxy-theme') || 'default';
-        if (savedTheme === '2007') {
-            document.body.classList.add('theme-2007');
-            themeSelect.value = '2007';
+        <h1 style="text-align:center; font-size: 4rem; margin:0; letter-spacing:-4px;">madb</h1>
+        <p style="text-align:center; opacity:0.5; font-weight: 800; font-size: 0.95rem;">WATCH SPORTS & BROWSE ANYTHING</p>
+
+        <form class="browser-box" id="search-form">
+            <input type="text" id="url-input" placeholder="Search Google or type URL..." autocomplete="off">
+            <button type="submit" class="browser-btn">GO</button>
+        </form>
+    </div>
+
+    <div class="main-ui-container">
+        <div class="refresh-tag" id="refresh-timer">Refreshing in 60s</div>
+        
+        <div style="margin-bottom:18px;">
+            <h2 style="margin:0; font-weight:900; font-size: 2rem;">Sports Hub</h2>
+            <p style="margin:0; opacity:0.6; font-size: 0.85rem; font-weight: 700;">(latest news & scores)</p>
+        </div>
+
+        <div class="main-tab-bar">
+            <button class="main-tab-btn active" id="news-tab-btn" onclick="switchMainMode('NEWS')">Sports News</button>
+            <button class="main-tab-btn" id="scores-tab-btn" onclick="switchMainMode('SCORES')">Sports Scores</button>
+        </div>
+
+        <div class="sub-tab-bar" id="sub-tabs"></div>
+        <div id="content-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 22px;"></div>
+    </div>
+
+    <footer>&copy; 2026 madb &bull; Built for Privacy</footer>
+
+    <script>
+        let timeLeft = 60;
+        let currentMode = 'NEWS';
+        let currentLeague = 'MLB';
+        const leagues = ['MLB', 'NFL', 'NHL', 'NBA', 'FC'];
+
+        function toggleModal(id, show) {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
         }
 
-        themeSelect.addEventListener('change', (e) => {
-            const val = e.target.value;
-            if (val === '2007') {
-                document.body.classList.add('theme-2007');
-            } else {
-                document.body.classList.remove('theme-2007');
-            }
-            localStorage.setItem('doxy-theme', val);
-        });
+        function setTheme(theme, index) {
+            document.body.setAttribute('data-theme', theme);
+            document.getElementById('indicator').style.transform = `translateX(${index * 40}px)`;
+            localStorage.setItem('madb-theme', JSON.stringify({theme, index}));
+        }
 
-        async function loadRSS() {
+        function switchMainMode(mode) {
+            currentMode = mode;
+            document.getElementById('news-tab-btn').classList.toggle('active', mode === 'NEWS');
+            document.getElementById('scores-tab-btn').classList.toggle('active', mode === 'SCORES');
+            renderSubTabs();
+        }
+
+        function renderSubTabs() {
+            const container = document.getElementById('sub-tabs');
+            container.innerHTML = "";
+            leagues.forEach(l => {
+                const btn = document.createElement('button');
+                btn.className = `sport-btn ${l === currentLeague ? 'active' : ''}`;
+                btn.innerText = l;
+                btn.onclick = () => { currentLeague = l; renderSubTabs(); };
+                container.appendChild(btn);
+            });
+            if(currentMode === 'NEWS') loadNews(currentLeague); else loadScores(currentLeague);
+        }
+
+        async function loadNews(league) {
+            const grid = document.getElementById('content-grid');
+            grid.innerHTML = "";
+            const feed = league === 'FC' ? 'soccer' : league.toLowerCase();
             try {
-                const url = "https://learningnews.com/feed";
-                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://www.espn.com/espn/rss/${feed}/news`);
                 const data = await res.json();
-                const container = document.getElementById("learning-news");
-
-                if (!data.items) return;
-
-                container.innerHTML = "";
-                data.items.slice(0, 8).forEach(item => {
-                    let imgUrl = item.thumbnail;
-                    if (!imgUrl && item.enclosure && item.enclosure.link) imgUrl = item.enclosure.link;
-                    if (!imgUrl) {
-                        const div = document.createElement('div');
-                        div.innerHTML = item.description;
-                        const img = div.querySelector('img');
-                        if (img) imgUrl = img.src;
-                    }
-                    if (!imgUrl) imgUrl = "/placeholder.jpg";
-
-                    const card = document.createElement("a");
-                    card.className = "news-card";
-                    card.href = item.link;
-                    card.target = "_blank";
-                    const date = new Date(item.pubDate).toLocaleDateString();
-
+                data.items.slice(0, 9).forEach((item, i) => {
+                    const card = document.createElement('a');
+                    card.className = "card animate-reveal";
+                    card.style.animationDelay = `${i * 0.05}s`;
+                    card.href = item.link; card.target = "_blank";
                     card.innerHTML = `
-                        <img src="${imgUrl}" class="news-thumb" alt="News" onerror="this.src='/placeholder.jpg'">
-                        <div class="news-content">
-                            <div class="news-title">${item.title}</div>
-                            <div class="news-date">${date}</div>
+                        <div>
+                            <div style="font-size:0.7rem; font-weight:900; color:var(--accent); text-transform:uppercase; margin-bottom:10px;">${league}</div>
+                            <h3 style="margin:0; font-size:1.1rem; line-height:1.4;">${item.title}</h3>
+                        </div>
+                        <p style="font-size:0.75rem; opacity:0.5; margin-top:20px; font-weight:bold;">${new Date(item.pubDate).toLocaleDateString()}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch(e) { grid.innerHTML = "Sync Error."; }
+        }
+
+        async function loadScores(league) {
+            const grid = document.getElementById('content-grid');
+            grid.innerHTML = "";
+            const sportMap = { 'MLB': 'baseball/mlb', 'NFL': 'football/nfl', 'NBA': 'basketball/nba', 'NHL': 'hockey/nhl', 'FC': 'soccer/eng.1' };
+            try {
+                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportMap[league]}/scoreboard`);
+                const data = await res.json();
+                const processedGames = new Set();
+
+                data.events.forEach((game, i) => {
+                    if (processedGames.has(game.id)) return;
+                    processedGames.add(game.id);
+
+                    const comp = game.competitions[0];
+                    const home = comp.competitors[0];
+                    const away = comp.competitors[1];
+                    const isFinal = game.status.type.state === 'post';
+                    
+                    let homeStyle = "", awayStyle = "";
+                    if (isFinal) {
+                        const hScore = parseInt(home.score);
+                        const aScore = parseInt(away.score);
+                        if (hScore > aScore) { homeStyle = "win-text"; awayStyle = "loss-text"; }
+                        else if (aScore > hScore) { awayStyle = "win-text"; homeStyle = "loss-text"; }
+                    }
+
+                    const gameDate = new Date(game.date);
+                    const formattedDate = gameDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                    const sdTime = gameDate.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' });
+
+                    const card = document.createElement('div');
+                    card.className = "card animate-reveal";
+                    card.style.animationDelay = `${i * 0.05}s`;
+                    card.innerHTML = `
+                        <div style="font-size:0.65rem; font-weight:900; color:var(--accent); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="background:var(--nav-bg); padding:4px 8px; border-radius:6px;">${isFinal ? 'FINAL' : 'SCHEDULE'}</span>
+                            <span style="opacity:0.6;">${sdTime} PT</span>
+                        </div>
+                        <div class="score-row"><span class="${awayStyle}">${away.team.abbreviation || away.team.displayName}</span><span>${away.score}</span></div>
+                        <div class="score-row"><span class="${homeStyle}">${home.team.abbreviation || home.team.displayName}</span><span>${home.score}</span></div>
+                        <div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
+                            <div style="font-size:0.75rem; font-weight:800; opacity:0.8;">${formattedDate}</div>
+                            <div style="font-size:0.7rem; opacity:0.5; font-weight:600;">${game.status.type.shortDetail}</div>
                         </div>
                     `;
-                    container.appendChild(card);
+                    grid.appendChild(card);
                 });
-            } catch (e) {
-                console.error("RSS Error:", e);
-                document.getElementById("learning-news").innerHTML = "<p>Failed to load news.</p>";
-            }
+            } catch(e) { grid.innerHTML = "No games found."; }
         }
 
-        function search(input, template) {
-            try { return new URL(input).toString(); } catch (err) { }
-            try {
-                const url = new URL(`http://${input}`);
-                if (url.hostname.includes(".")) return url.toString();
-            } catch (err) { }
-            return template.replace("%s", encodeURIComponent(input));
-        }
+        setInterval(() => {
+            timeLeft--;
+            const timerEl = document.getElementById('refresh-timer');
+            if(timerEl) timerEl.innerText = `Refreshing in ${timeLeft}s`;
+            if(timeLeft <= 0) { timeLeft = 60; renderSubTabs(); }
+        }, 1000);
 
-        async function manualRegisterSW() {
-            if ('serviceWorker' in navigator) {
-                return navigator.serviceWorker.register('/scram/sw.js', {
-                    scope: '/scram/service/'
-                });
-            }
-            throw new Error("Service Workers not supported.");
-        }
-
-        window.addEventListener('load', async () => {
-            console.log("DOM Loaded. Initializing...");
-
-            const form = document.getElementById("sj-form");
-            const address = document.getElementById("sj-address");
-            const searchEngine = document.getElementById("sj-search-engine");
-            const btn = document.getElementById("sj-btn");
-            const errorMsg = document.getElementById("error-msg");
-
-            const mainMenu = document.getElementById("main-menu");
-            const proxyOverlay = document.getElementById("proxy-overlay");
-            const proxyInput = document.getElementById("proxy-nav-input");
-            const proxyNavForm = document.getElementById("proxy-nav-form");
-            loadRSS();
-
-            if (typeof BareMux === 'undefined' || typeof $scramjetLoadController === 'undefined') {
-                errorMsg.textContent = "failed to load.";
-                errorMsg.style.display = "block";
-                return;
-            }
-
-            const { ScramjetController } = $scramjetLoadController();
-            const scramjet = new ScramjetController({
-                files: {
-                    wasm: '/scram/scramjet.wasm.wasm',
-                    all: '/scram/scramjet.all.js',
-                    sync: '/scram/scramjet.sync.js',
-                },
-            });
-            scramjet.init();
-
-            const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-
-            address.disabled = false;
-            address.placeholder = "Search or enter URL...";
-            btn.disabled = false;
-
-            form.addEventListener("submit", async (event) => {
-                event.preventDefault();
-                errorMsg.style.display = "none";
-                const val = address.value.trim();
-                if (!val) return;
-
-                btn.disabled = true;
-                btn.textContent = "Loading...";
-
-                try {
-                    try {
-                        if (typeof registerSW === 'function') await registerSW();
-                        else await manualRegisterSW();
-                    } catch (swErr) {
-                        console.error("SW Error:", swErr);
-                        throw new Error("Failed to register Service Worker.");
-                    }
-
-                    const url = search(val, searchEngine.value);
-                    const wispUrl = (location.protocol === "https:" ? "wss" : "ws") + "://" + location.host + "/wisp/";
-                    if ((await connection.getTransport()) !== "/epoxy/index.mjs") {
-                        await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
-                    }
-
-                    // Lock body scroll only when proxy is active
-                    document.body.style.overflow = "hidden";
-                    
-                    mainMenu.style.display = "none";
-                    // Hide the news container too
-                    document.querySelector('.main-ui-container[style*="margin-top"]').style.display = "none";
-                    
-                    proxyOverlay.style.display = "flex";
-                    proxyInput.value = url;
-
-                    const existingFrame = document.getElementById("sj-frame");
-                    if (existingFrame) existingFrame.remove();
-
-                    const frame = scramjet.createFrame();
-                    frame.frame.id = "sj-frame";
-                    proxyOverlay.appendChild(frame.frame);
-                    frame.go(url);
-
-                } catch (err) {
-                    console.error(err);
-                    errorMsg.textContent = err.message || err.toString();
-                    errorMsg.style.display = "block";
-                    mainMenu.style.display = "block";
-                    document.querySelector('.main-ui-container[style*="margin-top"]').style.display = "block";
-                    proxyOverlay.style.display = "none";
-                    document.body.style.overflow = "auto";
-                } finally {
-                    btn.disabled = false;
-                    btn.textContent = "Go →";
-                }
-            });
-
-            proxyNavForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                address.value = proxyInput.value;
-                form.dispatchEvent(new Event('submit'));
-            });
-
-            window.exitProxy = function () {
-                document.body.style.overflow = "auto";
-                proxyOverlay.style.display = "none";
-                mainMenu.style.display = "block";
-                document.querySelector('.main-ui-container[style*="margin-top"]').style.display = "block";
-                const f = document.getElementById("sj-frame");
-                if (f) f.remove();
-                address.value = "";
-                proxyInput.value = "";
-            }
-        });
-
-        // Draggable Logs
-        const logsWindow = document.getElementById("logs-window");
-        const logsHeader = document.getElementById("logs-header");
-        let isDragging = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
-        logsHeader.addEventListener("mousedown", dragStart);
-        document.addEventListener("mouseup", dragEnd);
-        document.addEventListener("mousemove", drag);
-        function dragStart(e) { initialX = e.clientX - xOffset; initialY = e.clientY - yOffset; if (e.target === logsHeader || e.target.parentNode === logsHeader) isDragging = true; }
-        function dragEnd(e) { initialX = currentX; initialY = currentY; isDragging = false; }
-        function drag(e) { if (isDragging) { e.preventDefault(); currentX = e.clientX - initialX; currentY = e.clientY - initialY; xOffset = currentX; yOffset = currentY; setTranslate(currentX, currentY, logsWindow); } }
-        function setTranslate(xPos, yPos, el) { el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)"; }
-
-        const logsFrame = document.getElementById('update-logs-frame');
-        let isMinimized = false;
-        window.toggleLogs = function () { if (!isMinimized) { logsFrame.style.height = '0px'; isMinimized = true; } else { logsFrame.style.height = '300px'; isMinimized = false; } }
-        window.closeLogs = function () { logsWindow.style.display = 'none'; }
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('madb-theme'));
+            if(saved) setTheme(saved.theme, saved.index);
+            renderSubTabs();
+        };
     </script>
 </body>
 </html>
