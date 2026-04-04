@@ -71,11 +71,11 @@
         .browser-btn { background: var(--accent); color: white; border: none; border-radius: 14px; padding: 0 22px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
 
         /* Proxy Overlay */
-        #proxy-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: none; flex-direction: column; }
+        #proxy-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; flex-direction: column; }
         .proxy-nav { height: 60px; background: var(--container); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 15px; }
-        .proxy-nav input { flex: 1; padding: 8px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--nav-bg); color: var(--text); }
+        .proxy-nav input { flex: 1; padding: 8px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--nav-bg); color: var(--text); font-family: monospace; }
         .exit-btn { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        #sj-frame { border: none; width: 100%; height: calc(100% - 60px); background: white; }
+        #sj-frame { border: none; width: 100%; height: calc(100% - 60px); flex-grow: 1; display: block; background: white; }
 
         /* Modals */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(15px); }
@@ -126,7 +126,7 @@
         <div class="proxy-nav">
             <button class="exit-btn" onclick="exitProxy()">EXIT</button>
             <form id="proxy-nav-form" style="flex:1; display:flex;">
-                <input id="proxy-nav-input" type="text" placeholder="Enter URL or search...">
+                <input id="proxy-nav-input" type="text" placeholder="Type URL here...">
             </form>
         </div>
     </div>
@@ -157,23 +157,20 @@
         <form class="browser-box" id="sj-form">
             <input type="hidden" id="sj-search-engine" value="https://www.google.com/search?q=%s">
             <input type="text" id="sj-address" placeholder="Search Google or type URL..." autocomplete="off">
-            <button type="submit" class="browser-btn">GO</button>
+            <button type="submit" class="browser-btn" id="sj-btn">GO</button>
         </form>
     </div>
 
     <div class="main-ui-container">
         <div class="refresh-tag" id="refresh-timer">Refreshing in 60s</div>
-        
         <div style="margin-bottom:18px;">
             <h2 style="margin:0; font-weight:900; font-size: 2rem;">Sports Hub</h2>
             <p style="margin:0; opacity:0.6; font-size: 0.85rem; font-weight: 700;">(latest news & scores)</p>
         </div>
-
         <div class="main-tab-bar">
             <button class="main-tab-btn active" id="news-tab-btn" onclick="switchMainMode('NEWS')">Sports News</button>
             <button class="main-tab-btn" id="scores-tab-btn" onclick="switchMainMode('SCORES')">Sports Scores</button>
         </div>
-
         <div class="sub-tab-bar" id="sub-tabs"></div>
         <div id="content-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 22px;"></div>
     </div>
@@ -183,7 +180,7 @@
     <script>
         "use strict";
 
-        // --- BROWSER ENGINE ---
+        // --- CORE BROWSER LOGIC ---
         function search(input, template) {
             try { return new URL(input).toString(); } catch (err) { }
             try {
@@ -197,44 +194,72 @@
             if ('serviceWorker' in navigator) {
                 return navigator.serviceWorker.register('/scram/sw.js', { scope: '/scram/service/' });
             }
-            throw new Error("Service Workers not supported.");
+            throw new Error("Service Worker not supported.");
         }
 
         window.addEventListener('load', async () => {
             const form = document.getElementById("sj-form");
             const address = document.getElementById("sj-address");
+            const btn = document.getElementById("sj-btn");
             const proxyOverlay = document.getElementById("proxy-overlay");
             const proxyInput = document.getElementById("proxy-nav-input");
+            const proxyNavForm = document.getElementById("proxy-nav-form");
 
-            if (typeof BareMux !== 'undefined' && typeof $scramjetLoadController !== 'undefined') {
-                const { ScramjetController } = $scramjetLoadController();
-                const scramjet = new ScramjetController({
-                    files: { wasm: '/scram/scramjet.wasm.wasm', all: '/scram/scramjet.all.js', sync: '/scram/scramjet.sync.js' },
-                });
-                scramjet.init();
-                const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
-
-                form.addEventListener("submit", async (e) => {
-                    e.preventDefault();
-                    const val = address.value.trim();
-                    if (!val) return;
-                    try {
-                        await manualRegisterSW();
-                        const url = search(val, document.getElementById("sj-search-engine").value);
-                        const wispUrl = (location.protocol === "https:" ? "wss" : "ws") + "://" + location.host + "/wisp/";
-                        if ((await connection.getTransport()) !== "/epoxy/index.mjs") {
-                            await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
-                        }
-                        document.body.style.overflow = "hidden";
-                        proxyOverlay.style.display = "flex";
-                        proxyInput.value = url;
-                        const frame = scramjet.createFrame();
-                        frame.frame.id = "sj-frame";
-                        proxyOverlay.appendChild(frame.frame);
-                        frame.go(url);
-                    } catch (err) { console.error(err); }
-                });
+            if (typeof BareMux === 'undefined' || typeof $scramjetLoadController === 'undefined') {
+                console.error("Critical Proxy Libraries Missing");
+                return;
             }
+
+            const { ScramjetController } = $scramjetLoadController();
+            const scramjet = new ScramjetController({
+                files: { wasm: '/scram/scramjet.wasm.wasm', all: '/scram/scramjet.all.js', sync: '/scram/scramjet.sync.js' },
+            });
+            scramjet.init();
+
+            const connection = new BareMux.BareMuxConnection("/baremux/worker.js");
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const val = address.value.trim();
+                if (!val) return;
+
+                btn.disabled = true;
+                btn.innerText = "...";
+
+                try {
+                    await manualRegisterSW();
+                    const url = search(val, document.getElementById("sj-search-engine").value);
+                    const wispUrl = (location.protocol === "https:" ? "wss" : "ws") + "://" + location.host + "/wisp/";
+                    
+                    if ((await connection.getTransport()) !== "/epoxy/index.mjs") {
+                        await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl }]);
+                    }
+
+                    document.body.style.overflow = "hidden";
+                    proxyOverlay.style.display = "flex";
+                    proxyInput.value = url;
+
+                    // Clean existing frame
+                    const oldFrame = document.getElementById("sj-frame");
+                    if (oldFrame) oldFrame.remove();
+
+                    const frame = scramjet.createFrame();
+                    frame.frame.id = "sj-frame";
+                    proxyOverlay.appendChild(frame.frame);
+                    frame.go(url);
+                } catch (err) {
+                    alert("Proxy Launch Error: " + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = "GO";
+                }
+            });
+
+            proxyNavForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                address.value = proxyInput.value;
+                form.dispatchEvent(new Event('submit'));
+            });
         });
 
         window.exitProxy = function() {
@@ -242,11 +267,12 @@
             document.getElementById("proxy-overlay").style.display = "none";
             const f = document.getElementById("sj-frame");
             if (f) f.remove();
+            document.getElementById("sj-address").value = "";
         }
 
+        // --- UI & THEME LOGIC ---
         function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
 
-        // --- THEME & SPORTS ---
         let currentMode = 'NEWS', currentLeague = 'MLB', timeLeft = 60;
         const leagues = ['MLB', 'NFL', 'NHL', 'NBA', 'FC'];
 
@@ -311,20 +337,16 @@
                     const comp = game.competitions[0], home = comp.competitors[0], away = comp.competitors[1];
                     const isFinal = game.status.type.state === 'post';
                     const gameDate = new Date(game.date);
-                    
-                    let hStyle = "", aStyle = "";
-                    if (isFinal) {
-                        if (parseInt(home.score) > parseInt(away.score)) { hStyle = "win-text"; aStyle = "loss-text"; }
-                        else if (parseInt(away.score) > parseInt(home.score)) { aStyle = "win-text"; hStyle = "loss-text"; }
-                    }
+                    const hStyle = (isFinal && parseInt(home.score) > parseInt(away.score)) ? "win-text" : (isFinal ? "loss-text" : "");
+                    const aStyle = (isFinal && parseInt(away.score) > parseInt(home.score)) ? "win-text" : (isFinal ? "loss-text" : "");
 
                     const card = document.createElement('div');
                     card.className = "card animate-reveal";
                     card.style.animationDelay = `${i * 0.05}s`;
                     card.innerHTML = `
                         <div style="font-size:0.65rem; font-weight:900; color:var(--accent); margin-bottom:12px; display:flex; justify-content:space-between;">
-                            <span style="background:var(--nav-bg); padding:4px 8px; border-radius:6px;">${isFinal ? 'FINAL' : 'SCHEDULE'}</span>
-                            <span style="opacity:0.6;">${gameDate.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})} PT</span>
+                            <span style="background:var(--nav-bg); padding:4px 8px; border-radius:6px;">${isFinal ? 'FINAL' : 'LIVE'}</span>
+                            <span style="opacity:0.6;">${gameDate.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}</span>
                         </div>
                         <div class="score-row"><span class="${aStyle}">${away.team.abbreviation}</span><span>${away.score}</span></div>
                         <div class="score-row"><span class="${hStyle}">${home.team.abbreviation}</span><span>${home.score}</span></div>
